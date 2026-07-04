@@ -16,6 +16,7 @@
              letter-spacing:.06em; margin-bottom:6px; }
   .hero .tag { display:inline-block; font-size:13px; color:#FFE9B8; letter-spacing:.14em;
                text-shadow:0 1px 6px rgba(0,0,0,.6); margin-bottom:10px; }
+  .hero .hsub { font-size:14px; color:#FFE9B8; text-shadow:0 1px 6px rgba(0,0,0,.6); margin-bottom:12px; }
   .hero .days { display:inline-block; background:rgba(179,38,30,.92); color:#FFF6DF; font-size:13px;
                 padding:6px 16px; border-radius:999px; border:1px solid rgba(255,233,184,.55); }
   .wrap { max-width:760px; margin:-18px auto 0; padding:0 16px; position:relative; }
@@ -63,22 +64,22 @@
 <body>
 <div class="hero">
   <div class="tag">全国！応援AI共創クエスト</div>
-  <h1>47都道府県に、仲間の旗を立てよう</h1>
+  <h1>47都道府県 主催・運営マップ</h1>
+  <div class="hsub">目標は、全国の主催者・運営メンバーあわせて300人！</div>
   <div class="days">出版まで残り60日（2026.9.2）｜更新 2026-07-04</div>
 </div>
 <div class="wrap">
   <div class="cards" id="cards"></div>
   <div class="quest">
-    <div class="qlabel"><span>🚩 クエスト達成率（旗が立った県）</span><b id="qpct">0%</b></div>
+    <div class="qlabel"><span>🚩 旗が立った県（主催1人＋運営2人以上）</span><b id="qpct">0%</b></div>
     <div class="qbar"><div class="qfill" id="qfill" style="width:0%"></div></div>
   </div>
-  <div class="thbox">
-    <span>旗が立つ条件: 主催1人 ＋ 運営</span>
-    <input type="range" min="1" max="5" step="1" value="3" id="th">
-    <b id="th-out" style="min-width:52px; color:#7A1F14;">3人以上</b>
+  <div class="quest">
+    <div class="qlabel"><span>🤝 全国の仲間（目標300人）</span><b id="ppct">0人</b></div>
+    <div class="qbar"><div class="qfill" id="pfill" style="width:0%"></div></div>
   </div>
   <div class="legend">
-    <span>🚩 旗が立った（体制OK）</span>
+    <span>🚩 旗が立った（主催1人＋運営2人以上）</span>
     <span>⛺ 立ち上げ中</span>
     <span style="color:#9a8763;">□ 未開の地 — あなたの県かも！</span>
   </div>
@@ -88,32 +89,38 @@
 </div>
 <script>
 if (new URLSearchParams(location.search).get("embed") === "1") document.body.classList.add("embed");
-const DATA = {"北海道・東北": [["北海道", 0, 0, [], []], ["青森", 0, 0, [], []], ["岩手", 0, 0, [], []], ["宮城", 0, 0, [], []], ["秋田", 0, 0, [], []], ["山形", 0, 0, [], []], ["福島", 0, 0, [], []]], "関東": [["茨城", 0, 0, [], []], ["栃木", 0, 0, [], []], ["群馬", 0, 0, [], []], ["埼玉", 0, 0, [], []], ["千葉", 0, 0, [], []], ["東京", 0, 0, [], []], ["神奈川", 0, 0, [], []]], "中部": [["新潟", 0, 0, [], []], ["富山", 0, 0, [], []], ["石川", 0, 0, [], []], ["福井", 0, 0, [], []], ["山梨", 0, 0, [], []], ["長野", 0, 0, [], []], ["岐阜", 0, 0, [], []], ["静岡", 0, 0, [], []], ["愛知", 0, 0, [], []]], "近畿": [["三重", 0, 0, [], []], ["滋賀", 0, 0, [], []], ["京都", 0, 0, [], []], ["大阪", 0, 0, [], []], ["兵庫", 0, 0, [], []], ["奈良", 0, 0, [], []], ["和歌山", 0, 0, [], []]], "中国・四国": [["鳥取", 0, 0, [], []], ["島根", 0, 0, [], []], ["岡山", 0, 0, [], []], ["広島", 0, 0, [], []], ["山口", 0, 0, [], []], ["徳島", 0, 0, [], []], ["香川", 0, 0, [], []], ["愛媛", 0, 0, [], []], ["高知", 0, 0, [], []]], "九州・沖縄": [["福岡", 0, 0, [], []], ["佐賀", 0, 0, [], []], ["長崎", 0, 0, [], []], ["熊本", 0, 0, [], []], ["大分", 0, 0, [], []], ["宮崎", 0, 0, [], []], ["鹿児島", 0, 0, [], []], ["沖縄", 0, 0, [], []]]};
-function stateOf(s, u, th) { if (s >= 1 && u >= th) return "ok"; if (s + u > 0) return "mid"; return "none"; }
+const DATA = {"北海道・東北": [["北海道", 0, 0, [], []], ["青森", 0, 0, [], []], ["岩手", 0, 0, [], []], ["宮城", 0, 0, [], []], ["秋田", 0, 0, [], []], ["山形", 0, 0, [], []], ["福島", 0, 0, [], []]], "関東": [["茨城", 0, 0, [], []], ["栃木", 0, 0, [], []], ["群馬", 0, 0, [], []], ["埼玉", 0, 0, [], []], ["千葉", 0, 0, [], []], ["東京", 0, 0, [], []], ["神奈川", 0, 0, [], []]], "中部": [["新潟", 0, 0, [], []], ["富山", 0, 0, [], []], ["石川", 0, 0, [], []], ["福井", 0, 0, [], []], ["山梨", 0, 0, [], []], ["長野", 0, 0, [], []], ["岐阜", 0, 0, [], []], ["静岡", 0, 0, [], []], ["愛知", 0, 0, [], []]], "近畿": [["三重", 0, 0, [], []], ["滋賀", 0, 0, [], []], ["京都", 0, 0, [], []], ["大阪", 0, 0, [], []], ["兵庫", 0, 0, [], []], ["奈良", 0, 0, [], []], ["和歌山", 0, 0, [], []]], "中国・四国": [["鳥取", 0, 0, [], []], ["島根", 0, 0, [], []], ["岡山", 0, 0, [], []], ["広島", 0, 0, [], []], ["山口", 0, 0, [], []], ["徳島", 0, 0, [], []], ["香川", 0, 0, [], []], ["愛媛", 0, 0, [], []], ["高知", 0, 0, [], []]], "九州・沖縄": [["福岡", 0, 0, [], []], ["佐賀", 0, 0, [], []], ["長崎", 0, 0, [], []], ["熊本", 0, 0, [], []], ["大分", 0, 0, [], []], ["宮崎", 0, 0, [], []], ["鹿児島", 0, 0, [], []], ["沖縄", 0, 0, [], []]], "オンライン": [["オンライン", 0, 0, [], []]]};
+const TH = 2, GOAL = 300;
+function stateOf(s, u) { if (s >= 1 && u >= TH) return "ok"; if (s + u > 0) return "mid"; return "none"; }
 const MARK = { ok: "🚩", mid: "⛺", none: "" };
 function render() {
-  const th = parseInt(document.getElementById("th").value);
-  document.getElementById("th-out").textContent = th + "人以上";
   let c = {ok:0, mid:0, none:0}, ts = 0, tu = 0, html = "";
   for (const [region, prefs] of Object.entries(DATA)) {
+    const isOnline = region === "オンライン";
     html += '<div class="region"><div class="rname">' + region + '</div><div class="tiles">';
     for (const [name, s, u] of prefs) {
-      const st = stateOf(s, u, th); c[st]++; ts += s; tu += u;
+      const st = stateOf(s, u);
+      if (!isOnline) c[st]++;
+      ts += s; tu += u;
       html += '<span class="tile t-' + st + '" onclick="showDetail(\'' + name + '\')">' +
-        '<span class="pn">' + (MARK[st] ? MARK[st] + " " : "") + name + '</span>' +
+        '<span class="pn">' + (MARK[st] ? MARK[st] + " " : "") + (isOnline ? "🌐 " + name : name) + '</span>' +
         '<span class="cnt">主' + s + '・運' + u + '</span></span>';
     }
     html += '</div></div>';
   }
   document.getElementById("regions").innerHTML = html;
+  const people = ts + tu;
   document.getElementById("cards").innerHTML =
     '<div class="card"><div class="label">🚩 旗が立った県</div><div class="num ok-num">' + c.ok + ' <span class="unit">/ 47県</span></div></div>' +
     '<div class="card"><div class="label">⛺ 立ち上げ中</div><div class="num mid-num">' + c.mid + '<span class="unit">県</span></div></div>' +
     '<div class="card"><div class="label">未開の地</div><div class="num">' + c.none + '<span class="unit">県</span></div></div>' +
-    '<div class="card"><div class="label">全国の仲間</div><div class="num">' + (ts + tu) + '<span class="unit">人（主' + ts + '・運' + tu + '）</span></div></div>';
+    '<div class="card"><div class="label">🤝 全国の仲間</div><div class="num">' + people + ' <span class="unit">/ 300人（主' + ts + '・運' + tu + '）</span></div></div>';
   const pct = Math.round(c.ok / 47 * 100);
   document.getElementById("qpct").textContent = pct + "%（" + c.ok + "/47）";
   document.getElementById("qfill").style.width = Math.max(pct, c.ok > 0 ? 3 : 0) + "%";
+  const ppct = Math.min(100, Math.round(people / GOAL * 100));
+  document.getElementById("ppct").textContent = people + "人 / 300人（" + ppct + "%）";
+  document.getElementById("pfill").style.width = Math.max(ppct, people > 0 ? 3 : 0) + "%";
 }
 function showDetail(pref) {
   for (const prefs of Object.values(DATA)) {
@@ -128,7 +135,6 @@ function showDetail(pref) {
     }
   }
 }
-document.getElementById("th").addEventListener("input", render);
 render();
 </script>
 </body>
