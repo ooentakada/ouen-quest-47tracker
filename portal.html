@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>📚『お願いしないで人を動かす』応援の輪ダッシュボード</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --red: #e2402f;
+    --red-deep: #b52a1c;
+    --orange: #f59a23;
+    --cream: #fff8f0;
+    --ink: #2b1d16;
+    --ink-2: #6f5b50;
+    --white: #ffffff;
+    --gold: #f5c518;
+  }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", sans-serif;
+    background: var(--cream); color: var(--ink); line-height: 1.6;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 0 18px 60px; }
+
+  /* hero */
+  .hero {
+    background: linear-gradient(135deg, var(--red) 0%, var(--red-deep) 60%, #8f1f14 100%);
+    color: #fff; text-align: center; padding: 40px 20px 88px;
+    clip-path: ellipse(140% 100% at 50% 0%);
+  }
+  .hero .brand {
+    font-size: 16px; font-weight: 800; letter-spacing: .22em; color: var(--gold);
+    margin-bottom: 12px; text-shadow: 0 1px 2px rgba(0,0,0,.2);
+  }
+  .hero .badge {
+    display: inline-block; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.4);
+    border-radius: 999px; padding: 4px 16px; font-size: 13px; font-weight: 700; letter-spacing: .05em;
+  }
+  .hero h1 { font-size: 26px; margin: 14px 0 4px; letter-spacing: .02em; }
+  .hero h1 .title { display: block; font-size: 30px; margin-top: 2px; }
+  .hero .sub { font-size: 14px; opacity: .92; }
+  .hero .cd {
+    display: inline-block; margin-top: 14px; background: var(--gold); color: #5c3a00;
+    font-weight: 800; border-radius: 999px; padding: 6px 18px; font-size: 14px;
+  }
+  .hero .cd.hot { background: #fff; color: var(--red-deep); margin-left: 8px; }
+
+  .milestones { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 18px; font-size: 12.5px; font-weight: 700; }
+  .ms { background: #f7ece0; border-radius: 999px; padding: 4px 13px; color: var(--ink-2); }
+  .ms.done { background: var(--gold); color: #5c3a00; }
+  .ms.next { background: var(--red); color: #fff; box-shadow: 0 2px 8px rgba(226,64,47,.35); }
+  .one-book { text-align: center; font-size: 13.5px; color: var(--ink-2); margin-top: 16px; }
+  .one-book b { color: var(--red); }
+
+  /* quest map */
+  .quest { margin-top: 14px; }
+  .stage { display: flex; gap: 14px; position: relative; padding-bottom: 18px; }
+  .stage::before {
+    content: ""; position: absolute; left: 17px; top: 36px; bottom: -2px;
+    width: 3px; background: #ecd9c6; border-radius: 2px;
+  }
+  .stage:last-child::before { display: none; }
+  .stage .dot {
+    flex: 0 0 36px; height: 36px; border-radius: 50%; background: #f7ece0;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 14px; color: var(--ink-2); z-index: 1;
+  }
+  .stage.done .dot { background: var(--gold); color: #5c3a00; }
+  .stage.now .dot { background: var(--red); color: #fff; box-shadow: 0 0 0 5px rgba(226,64,47,.2); }
+  .stage .body { flex: 1; padding-top: 2px; }
+  .stage .body .t { font-weight: 800; font-size: 15px; }
+  .stage.now .body .t { color: var(--red); }
+  .stage .body .period { font-size: 11.5px; color: #b09a88; font-weight: 700; margin-left: 6px; }
+  .stage .body .desc { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
+  .stage .now-badge {
+    display: inline-block; background: var(--red); color: #fff; font-size: 11px;
+    font-weight: 800; border-radius: 999px; padding: 1px 10px; margin-left: 8px; vertical-align: 1px;
+  }
+
+  /* kakawari map */
+  .kk { display: flex; gap: 12px; align-items: center; padding: 11px 0; border-bottom: 1px dashed #ecd9c6; }
+  .kk:last-child { border-bottom: none; }
+  .kk .fire { flex: 0 0 96px; font-size: 13px; letter-spacing: -1px; }
+  .kk .body { flex: 1; }
+  .kk .body .t { font-weight: 800; font-size: 14px; }
+  .kk .body .d { font-size: 12px; color: var(--ink-2); }
+  .kk .tag { flex: 0 0 auto; font-size: 11.5px; font-weight: 800; border-radius: 999px; padding: 3px 10px; }
+  .kk .tag.open { background: #e8f6e8; color: #1c7a1c; }
+  .kk .tag.lock { background: #f3e3d3; color: #a2794f; }
+
+  /* hero stats */
+  .stats {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+    margin: -58px auto 0; position: relative; z-index: 2;
+  }
+  .stat {
+    background: var(--white); border-radius: 16px; padding: 18px 8px 14px; text-align: center;
+    box-shadow: 0 6px 24px rgba(180, 60, 30, .14);
+  }
+  .stat .num { font-size: 34px; font-weight: 800; color: var(--red); letter-spacing: -1px; }
+  .stat .num small { font-size: 15px; font-weight: 700; color: var(--ink-2); }
+  .stat .lbl { font-size: 12px; font-weight: 700; color: var(--ink-2); margin-top: 2px; }
+  @media (max-width: 520px) { .stat .num { font-size: 26px; } }
+
+  section { margin-top: 34px; }
+  h2 { font-size: 19px; text-align: center; }
+  h2 + .lead { text-align: center; font-size: 13px; color: var(--ink-2); margin-top: 4px; }
+  .panel {
+    background: var(--white); border-radius: 16px; padding: 22px 20px;
+    box-shadow: 0 4px 18px rgba(180, 60, 30, .08); margin-top: 14px;
+  }
+
+  /* big progress */
+  .bigbar { position: relative; height: 26px; background: #f3e3d3; border-radius: 13px; margin-top: 26px; }
+  .bigbar .fill {
+    position: absolute; inset: 0 auto 0 0; border-radius: 13px;
+    background: linear-gradient(90deg, var(--orange), var(--red));
+    min-width: 12px; transition: width 1.2s cubic-bezier(.2,.8,.2,1);
+  }
+  .bigbar .runner { position: absolute; top: -22px; transform: translateX(-50%); font-size: 20px; transition: left 1.2s cubic-bezier(.2,.8,.2,1); }
+  .bigbar .tick { position: absolute; top: -6px; bottom: -6px; width: 3px; background: #d9bfa6; border-radius: 2px; }
+  .bigbar .tick-label { position: absolute; top: 30px; transform: translateX(-50%); font-size: 11px; font-weight: 700; color: var(--ink-2); white-space: nowrap; }
+  .bigbar .tick.done { background: var(--gold); }
+  .goal-note { text-align: center; margin-top: 34px; font-size: 15px; font-weight: 700; }
+  .goal-note b { color: var(--red); font-size: 18px; }
+
+  /* prefecture chips */
+  .prefs { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; margin-top: 12px; }
+  .pref {
+    border-radius: 999px; padding: 4px 12px; font-size: 12.5px; font-weight: 700;
+  }
+  .pref.on { background: var(--red); color: #fff; box-shadow: 0 2px 6px rgba(226,64,47,.35); }
+  .pref.host { background: var(--red-deep); color: #fff; border: 2px solid var(--gold); box-shadow: 0 2px 8px rgba(143,31,20,.45); }
+  .pref.off { background: none; border: 1.5px dashed var(--orange); color: #c07b2a; }
+  .pref-legend { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; font-size: 12px; font-weight: 700; color: var(--ink-2); margin-bottom: 4px; }
+  .pref-legend .pref { pointer-events: none; }
+  .pref-note { text-align: center; font-size: 13px; color: var(--ink-2); margin-top: 12px; }
+  .pref-note b { color: var(--red); }
+
+  /* daily chart */
+  svg text { font-family: inherit; }
+
+  /* events */
+  .evgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+  @media (max-width: 560px) { .evgrid { grid-template-columns: 1fr; } }
+  .ev {
+    background: var(--white); border-radius: 16px; padding: 20px;
+    box-shadow: 0 4px 18px rgba(180, 60, 30, .08); text-align: center;
+  }
+  .ev .date {
+    display: inline-block; background: #ffeede; color: var(--red-deep);
+    font-weight: 800; border-radius: 8px; padding: 2px 12px; font-size: 14px;
+  }
+  .ev h3 { font-size: 16px; margin: 8px 0 2px; }
+  .ev .venue { font-size: 12.5px; color: var(--ink-2); }
+  .ev .count { font-size: 32px; font-weight: 800; color: var(--red); margin-top: 6px; }
+  .ev .count small { font-size: 14px; color: var(--ink-2); font-weight: 700; }
+  .ev .cd { font-size: 12px; font-weight: 700; color: var(--orange); margin-top: 2px; }
+  .ev a.btn { margin-top: 10px; }
+
+  /* CTA */
+  .cta { text-align: center; }
+  a.btn {
+    display: inline-block; background: var(--red); color: #fff; text-decoration: none;
+    font-weight: 800; border-radius: 999px; padding: 12px 28px; font-size: 15px;
+    box-shadow: 0 4px 14px rgba(226,64,47,.4); margin: 6px 6px 0;
+  }
+  a.btn.ghost { background: #fff; color: var(--red); border: 2px solid var(--red); box-shadow: none; }
+
+  footer { text-align: center; margin-top: 36px; font-size: 12px; color: #b09a88; }
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="brand">⚔️ 応援AI共創クエスト</div>
+  <span class="badge">📚 2026.9.3 かんき出版より発売</span>
+  <h1>『お願いしないで人を動かす<span class="title">心のつかみ方』</span></h1>
+  <div class="sub">高田洋平・初出版 ─ 仲間と共創する、最初の一大クエスト</div>
+  <div class="cd" id="hero-cd"></div><div class="cd hot" id="hero-cp"></div>
+</div>
+
+<div class="wrap">
+  <div class="stats">
+    <div class="stat"><div class="num" data-count="0" id="st-people">0<small> 人</small></div><div class="lbl">🙌 応援のべ人数</div></div>
+    <div class="stat"><div class="num" id="st-books">0<small> 冊</small></div><div class="lbl" id="st-books-lbl">📚 事前応援冊数</div></div>
+    <div class="stat"><div class="num" id="st-prefs">0<small> /47</small></div><div class="lbl">🗾 応援都道府県</div></div>
+  </div>
+
+  <section>
+    <h2>🔥 目指せ3,000冊、大成功5,000冊！</h2>
+    <div class="lead">予約が集まるほど初版部数が増えて、全国の書店に並びます</div>
+    <div class="panel">
+      <div class="bigbar" id="bigbar">
+        <div class="runner" id="runner">🏃</div>
+        <div class="fill" id="bigfill" style="width:0%"></div>
+      </div>
+      <div class="goal-note" id="goal-note"></div>
+      <div class="milestones" id="milestones"></div>
+      <div class="one-book" id="one-book"></div>
+      <div class="prefs" id="role-chips" style="margin-top:22px"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>🙌 目指せ、応援メンバー1,000人！</h2>
+    <div class="lead">本の予約・応援団・仲間の輪、ぜんぶ合わせて</div>
+    <div class="panel">
+      <div class="bigbar" id="peoplebar">
+        <div class="runner" id="people-runner">🎌</div>
+        <div class="fill" id="peoplefill" style="width:0%"></div>
+      </div>
+      <div class="goal-note" id="people-note"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>🗺 クエスト進捗マップ</h2>
+    <div class="lead">この出版は、3年がかりの大きな旅の「最初のクエスト」。いまここまで進んでいます</div>
+    <div class="panel quest" id="quest"></div>
+  </section>
+
+  <section>
+    <h2>🗾 全国に応援の輪が広がっています！</h2>
+    <div class="lead">主催者がいる県は、金の縁どりで輝きます</div>
+    <div class="panel">
+      <div class="pref-legend">
+        <span><span class="pref host" style="padding:2px 10px">👑 主催者がいる県</span></span>
+        <span><span class="pref on" style="padding:2px 10px">応援メンバーがいる県</span></span>
+        <span><span class="pref off" style="padding:2px 10px">まだ誰もいない県</span></span>
+      </div>
+      <div class="prefs" id="prefs"></div>
+      <div class="pref-note" id="pref-note"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>📈 応援の勢い</h2>
+    <div class="lead">毎日仲間が増えています</div>
+    <div class="panel" id="daily"></div>
+  </section>
+
+  <section>
+    <h2>🎪 全国行脚レーン、走り出しています！</h2>
+    <div class="lead">7/24福岡を皮切りに、全国イベント＋各地主催者とのライブ配信がずっと続きます</div>
+    <div class="evgrid" id="events"></div>
+  </section>
+
+  <section>
+    <h2>🔥 関わりしろマップ</h2>
+    <div class="lead">あなたの熱量に合わせて、どこまでも関われます</div>
+    <div class="panel" id="kakawari"></div>
+    <div class="one-book">30冊以上・スポンサーの大型応援は、<b>1,000人の仲間が集まってから</b>（ステージ2で）募集開始します。今は仲間集めに集中！</div>
+    <div class="lead" style="margin-top:12px">お金をかけない応援も、ぜんぶ本物の応援です</div>
+    <div class="prefs" id="kakawari-free" style="margin-top:8px"></div>
+  </section>
+
+  <section class="cta" id="cta">
+    <h2>🎉 あなたも共創の輪に！</h2>
+    <div id="cta-btns" style="margin-top:10px"></div>
+  </section>
+
+  <footer id="foot"></footer>
+</div>
+
+<script>
+const DATA = {"updated": "2026-07-19 15:48", "daysToCp": 4, "daysToRelease": 46, "peopleNobe": 287, "peopleGoal": 1000, "books": 2042, "booksGoal": 3000, "booksStretch": 5000, "roles": {"shusai": 25, "amb": 37, "sponsor": 2, "yoyaku": 109, "shusaiGoal": 100, "ambGoal": 100}, "coveredCount": 36, "covered": ["京都府", "佐賀県", "兵庫県", "北海道", "千葉県", "和歌山県", "埼玉県", "大分県", "大阪府", "奈良県", "宮城県", "宮崎県", "富山県", "山梨県", "岐阜県", "岡山県", "岩手県", "広島県", "愛媛県", "愛知県", "東京都", "沖縄県", "滋賀県", "熊本県", "石川県", "神奈川県", "福井県", "福岡県", "福島県", "秋田県", "群馬県", "茨城県", "長崎県", "長野県", "静岡県", "高知県"], "coveredShusai": ["京都府", "兵庫県", "北海道", "千葉県", "埼玉県", "大阪府", "宮城県", "岐阜県", "広島県", "愛知県", "東京都", "神奈川県", "群馬県", "長崎県", "高知県"], "missing": ["青森県", "山形県", "栃木県", "新潟県", "三重県", "鳥取県", "島根県", "山口県", "徳島県", "香川県", "鹿児島県"], "daily": [{"label": "2026-07-04", "n": 2}, {"label": "2026-07-05", "n": 1}, {"label": "2026-07-07", "n": 3}, {"label": "2026-07-08", "n": 1}, {"label": "2026-07-09", "n": 1}, {"label": "2026-07-10", "n": 1}, {"label": "2026-07-13", "n": 43}, {"label": "2026-07-14", "n": 59}, {"label": "2026-07-15", "n": 32}, {"label": "2026-07-16", "n": 10}, {"label": "2026-07-17", "n": 11}, {"label": "2026-07-18", "n": 87}, {"label": "2026-07-19", "n": 36}], "events": [{"name": "福岡ワークショップ", "date": "2026-07-24", "venue": "福岡", "note": "AIも使える。人も集まる。", "daysLeft": 5, "count": 0, "goal": null, "url": ""}, {"name": "梅田 紀伊國屋 出版イベント", "date": "2026-09-15", "venue": "大阪・梅田 紀伊國屋書店", "note": "かんき出版チームと合同", "daysLeft": 58, "count": 0, "goal": null, "url": ""}, {"name": "神戸 出版イベント", "date": "2026-09-16", "venue": "兵庫・神戸", "note": "", "daysLeft": 59, "count": 0, "goal": null, "url": ""}, {"name": "出版記念講演会＆パーティ", "date": "2026-09-26", "venue": "東京・銀座", "note": "セミナー14時〜／パーティ18時〜", "daysLeft": 69, "count": 61, "goal": 100, "url": ""}, {"name": "名古屋 出版イベント", "date": "2026-10-05", "venue": "愛知・名古屋", "note": "1人サロンフェス登壇", "daysLeft": 78, "count": 0, "goal": null, "url": ""}], "links": {"amazon": "", "fandy": "", "jissenbu": "https://utage-system.com/p/8jGV65tCyar5"}};
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* hero countdown */
+$("hero-cd").textContent = DATA.daysToRelease > 0
+  ? `発売まであと ${DATA.daysToRelease} 日！`
+  : "発売中！";
+if (DATA.daysToCp >= 0) {
+  $("hero-cp").textContent = `⏳ 初版部数が決まるまで、あと${DATA.daysToCp}日！`;
+} else {
+  $("hero-cp").style.display = "none";
+}
+
+/* count-up animation */
+function countUp(el, target, suffix) {
+  const dur = 1400, t0 = performance.now();
+  function tick(t) {
+    const p = Math.min(1, (t - t0) / dur);
+    const eased = 1 - Math.pow(1 - p, 3);
+    el.innerHTML = Math.round(target * eased).toLocaleString() + suffix;
+    if (p < 1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+countUp($("st-people"), DATA.peopleNobe, "<small> 人</small>");
+if (DATA.books < DATA.booksGoal) {
+  countUp($("st-books"), DATA.booksGoal - DATA.books, "<small> 冊</small>");
+  $("st-books-lbl").textContent = `📚 目標${DATA.booksGoal.toLocaleString()}冊まで、あと`;
+} else if (DATA.books < DATA.booksStretch) {
+  countUp($("st-books"), DATA.booksStretch - DATA.books, "<small> 冊</small>");
+  $("st-books-lbl").textContent = `📚 大成功${DATA.booksStretch.toLocaleString()}冊まで、あと`;
+} else {
+  countUp($("st-books"), DATA.books, "<small> 冊</small>");
+}
+countUp($("st-prefs"), DATA.coveredCount, "<small> /47</small>");
+
+/* big progress: 冊数 */
+const STRETCH = DATA.booksStretch, MID = DATA.booksGoal;
+const pct = Math.min(100, DATA.books / STRETCH * 100);
+const midPct = MID / STRETCH * 100;
+$("bigbar").insertAdjacentHTML("beforeend",
+  `<div class="tick ${DATA.books >= MID ? "done" : ""}" style="left:${midPct}%"></div>
+   <div class="tick-label" style="left:${midPct}%">${DATA.books >= MID ? "✅" : ""}目標 ${MID.toLocaleString()}冊</div>
+   <div class="tick" style="left:100%"></div>
+   <div class="tick-label" style="left:100%">大成功 ${STRETCH.toLocaleString()}冊</div>`);
+requestAnimationFrame(() => requestAnimationFrame(() => {
+  $("bigfill").style.width = pct + "%";
+  $("runner").style.left = pct + "%";
+}));
+$("goal-note").innerHTML = DATA.books >= STRETCH
+  ? `🎉 大成功ライン突破！ありがとうございます！`
+  : DATA.books >= MID
+    ? `✅ 目標${MID.toLocaleString()}冊突破！ でもまだ足りない。大成功まであと <b>${(STRETCH - DATA.books).toLocaleString()}冊</b>！`
+    : `あと <b>${(MID - DATA.books).toLocaleString()}冊</b> 足りません！（現在 ${DATA.books.toLocaleString()}冊）`;
+
+/* マイルストーンの階段 */
+const MS = [
+  [2000, "2,000冊"],
+  [DATA.booksGoal, `${DATA.booksGoal.toLocaleString()}冊 全国主要書店へ`],
+  [DATA.booksStretch, `${DATA.booksStretch.toLocaleString()}冊 ランキング1位挑戦`],
+  [30000, "3万部 ベストセラー"],
+];
+let nextFound = false;
+$("milestones").innerHTML = MS.map(([v, label]) => {
+  const done = DATA.books >= v;
+  let cls = "ms";
+  if (done) cls += " done";
+  else if (!nextFound) { cls += " next"; nextFound = true; }
+  return `<span class="${cls}">${done ? "✅ " : ""}${label}</span>`;
+}).join('<span style="align-self:center;color:#d9bfa6">→</span>');
+
+/* あなたの1冊 */
+$("one-book").innerHTML = DATA.daysToCp >= 0
+  ? `7/23（木）に初版部数が決定します。<b>今日のあなたの1冊</b>が、全国の書店に並ぶ数を変えます。`
+  : `予約・書店購入のひとつひとつが、全国の書店に並ぶ数を変えていきます。`;
+
+/* 応援団の顔ぶれ */
+const R = DATA.roles;
+$("role-chips").innerHTML = [
+  `🎪 主催チャレンジ ${R.shusai}/${R.shusaiGoal}人`,
+  `🤝 アンバサダー ${R.amb}/${R.ambGoal}人`,
+  `💎 スポンサー ${R.sponsor}人`,
+  `🛒 予約サポーター ${R.yoyaku}人`,
+].map(x => `<span class="pref on">${x}</span>`).join("");
+
+/* big progress: メンバー1000人 */
+const P_GOAL = DATA.peopleGoal;
+const ppct = Math.min(100, DATA.peopleNobe / P_GOAL * 100);
+$("peoplebar").insertAdjacentHTML("beforeend",
+  `<div class="tick" style="left:100%"></div>
+   <div class="tick-label" style="left:100%">${P_GOAL.toLocaleString()}人</div>`);
+requestAnimationFrame(() => requestAnimationFrame(() => {
+  $("peoplefill").style.width = ppct + "%";
+  $("people-runner").style.left = ppct + "%";
+}));
+$("people-note").innerHTML = DATA.peopleNobe >= P_GOAL
+  ? `🎉 1,000人達成！日本一あたたかい祭りになりました！`
+  : `1,000人の祭りにしたい！ まだ <b>${(P_GOAL - DATA.peopleNobe).toLocaleString()}席</b> 空いています（現在 ${DATA.peopleNobe.toLocaleString()}人）`;
+
+/* prefectures */
+const ALL_PREFS = ["北海道","青森県","岩手県","宮城県","秋田県","山形県","福島県","茨城県","栃木県","群馬県","埼玉県","千葉県","東京都","神奈川県","新潟県","富山県","石川県","福井県","山梨県","長野県","岐阜県","静岡県","愛知県","三重県","滋賀県","京都府","大阪府","兵庫県","奈良県","和歌山県","鳥取県","島根県","岡山県","広島県","山口県","徳島県","香川県","愛媛県","高知県","福岡県","佐賀県","長崎県","熊本県","大分県","宮崎県","鹿児島県","沖縄県"];
+const on = new Set(DATA.covered);
+const host = new Set(DATA.coveredShusai);
+$("prefs").innerHTML = ALL_PREFS.map(p => {
+  const cls = host.has(p) ? "host" : on.has(p) ? "on" : "off";
+  return `<span class="pref ${cls}">${host.has(p) ? "👑 " : ""}${p.replace(/[都府県]$/, "")}</span>`;
+}).join("");
+const hostLeft = 47 - host.size;
+$("pref-note").innerHTML =
+  `👑 主催者がいるのは <b>${host.size}県</b>。目標は<b>47都道府県すべてに主催者</b>、あと${hostLeft}県！<br>`
+  + (DATA.missing.length
+    ? `⚠️ この<b>${DATA.missing.length}県</b>には、応援団がまだ<b>誰もいません</b>。あなたの県が空いていたら、<b>初代応援団の椅子</b>が空いています🔥`
+    : "🎉 47都道府県、全国制覇！");
+
+/* daily chart */
+(function () {
+  const days = DATA.daily;
+  const W = 640, H = 170, P = {t: 20, r: 10, b: 24, l: 10};
+  const iw = W - P.l - P.r, ih = H - P.t - P.b;
+  const max = Math.max(...days.map(d => d.n), 1);
+  const bw = Math.min(40, iw / days.length * 0.62);
+  let bars = "";
+  days.forEach((d, i) => {
+    const cx = P.l + (i + 0.5) * iw / days.length;
+    const h = Math.max(d.n / max * ih, d.n ? 3 : 0);
+    bars += `<rect x="${cx - bw / 2}" y="${P.t + ih - h}" width="${bw}" height="${h}" rx="4" fill="url(#warm)"/>`;
+    if (d.n) bars += `<text x="${cx}" y="${P.t + ih - h - 6}" text-anchor="middle" font-size="11" font-weight="700" fill="#b52a1c">${d.n}</text>`;
+    bars += `<text x="${cx}" y="${H - 6}" text-anchor="middle" font-size="10" fill="#b09a88">${d.label.slice(5).replace("-", "/")}</text>`;
+  });
+  $("daily").innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">
+    <defs><linearGradient id="warm" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f59a23"/><stop offset="100%" stop-color="#e2402f"/>
+    </linearGradient></defs>
+    <line x1="${P.l}" x2="${W - P.r}" y1="${P.t + ih}" y2="${P.t + ih}" stroke="#e8d5c2"/>${bars}</svg>`;
+})();
+
+/* quest map（正本: knowledge/projects/book-crowdfunding/zentai-roadmap-kakawarishiro-map-v1.md） */
+const STAGES = [
+  {n: "0", t: "仕込み編", from: "2026-06-01", to: "2026-07-17", period: "〜7/17",
+   desc: "巻末サンクスに110人超・心をつかむ実践部スタート"},
+  {n: "1", t: "『心のつかみ方』仲間集め編", from: "2026-07-17", to: "2026-08-15", period: "7/17〜8月中旬",
+   desc: "Amazon予約キャンペーン第1弾（〜7/23＝初版部数決定）・実践部メンバー1,000人へ"},
+  {n: "2", t: "主催者続々編", from: "2026-08-16", to: "2026-09-02", period: "8月〜9/2",
+   desc: "主催＆高田活用チャレンジの主催企画が動き出す・各地イベント続々・大型応援メニュー初公開"},
+  {n: "3", t: "出版・全国着火編", from: "2026-09-03", to: "2026-09-30", period: "9/3〜9月末",
+   desc: "発売！全国一斉書店シェア・書店ランキング獲り・9/26銀座で47都道府県マップ発表"},
+  {n: "4", t: "全国行脚編（シーズン1）", from: "2026-10-01", to: "2027-09-30", period: "10月〜2027/9",
+   desc: "全国で主催企画×高田行脚・四半期ごとのマップ更新祭・2027/9末シーズン1クリア式"},
+  {n: "5", t: "生涯共創編（2周目・3周目）", from: "2027-10-01", to: "2029-12-31", period: "2027/10〜",
+   desc: "3年で全国3周。全国に「100人を集められる仲間」が生まれ、1万人規模のイベントへ"},
+];
+const todayStr = DATA.updated.slice(0, 10);
+$("quest").innerHTML = STAGES.map(s => {
+  const done = todayStr > s.to;
+  const now = !done && todayStr >= s.from;
+  return `<div class="stage ${done ? "done" : now ? "now" : ""}">
+    <div class="dot">${done ? "✅" : s.n}</div>
+    <div class="body">
+      <div class="t">ステージ${s.n}: ${s.t}<span class="period">${s.period}</span>${now ? '<span class="now-badge">★いまここ</span>' : ""}</div>
+      <div class="desc">${s.desc}</div>
+    </div>
+  </div>`;
+}).join("");
+
+/* 関わりしろマップ（全公開OK・高額はステージ2解禁表記） */
+const KK = [
+  {fire: "🔥", t: "Amazonで1冊予約 → 実践部メンバー", d: "¥1,980｜実践部グループ・場づくりセミナー", tag: "✅ 募集中", open: true},
+  {fire: "🔥🔥", t: "3冊（1冊は自分・2冊は大切な人へ）→ 応援サポーター", d: "約¥6,000｜人たらし術セミナー＋限定動画", tag: "✅ 募集中", open: true},
+  {fire: "🔥🔥🔥", t: "11冊コース → アンバサダー", d: "¥20,000｜作戦本部入り・プロモの裏側ぜんぶ見られる", tag: "✅ 募集中", open: true},
+  {fire: "🔥🔥🔥🔥", t: "11冊＋高田活用権 → 主催＆高田活用チャレンジ", d: "¥40,000｜あなたの街の「人が集まる人」に。イベント・コンサル・配信に高田を呼べる", tag: "✅ 募集中", open: true},
+  {fire: "🔥🔥🔥🔥🔥", t: "30冊以上の上位コース・冠スポンサー", d: "書店ランキングの「箱」を一緒に作る大型応援", tag: "🔒 まだ募集していません", open: false},
+];
+$("kakawari").innerHTML = KK.map(k => `
+  <div class="kk">
+    <div class="fire">${k.fire}</div>
+    <div class="body"><div class="t">${k.t}</div><div class="d">${k.d}</div></div>
+    <div class="tag ${k.open ? "open" : "lock"}">${k.tag}</div>
+  </div>`).join("");
+$("kakawari-free").innerHTML = ["📣 シェア隊", "📚 書店買い担当", "🎤 インタビュー隊", "🏠 読書会・場を開く", "🗾 図鑑に登録"]
+  .map(x => `<span class="pref on" style="background:var(--orange)">${x}</span>`).join("");
+
+/* events */
+$("events").innerHTML = DATA.events.map(ev => `
+  <div class="ev">
+    <span class="date">${esc(ev.date.slice(5).replace("-", "/"))}</span>
+    <h3>${esc(ev.name)}</h3>
+    <div class="venue">${esc(ev.venue)}${ev.note ? "｜" + esc(ev.note) : ""}</div>
+    ${ev.count > 0
+      ? `<div class="count">${ev.count}<small> 人が参加表明！</small></div>`
+      : `<div class="count" style="font-size:18px; margin-top:12px">🎫 参加者募集中！</div>`}
+    <div class="cd">開催まであと${ev.daysLeft}日</div>
+    ${ev.url ? `<a class="btn" href="${esc(ev.url)}" target="_blank" rel="noopener">申し込む</a>` : ""}
+  </div>`).join("");
+
+/* CTA */
+const L = DATA.links || {};
+const btns = [];
+if (L.amazon) btns.push(`<a class="btn" href="${esc(L.amazon)}" target="_blank" rel="noopener">📚 Amazonで予約する</a>`);
+if (L.fandy) btns.push(`<a class="btn" href="${esc(L.fandy)}" target="_blank" rel="noopener">🤝 応援団に参加する</a>`);
+if (L.jissenbu) btns.push(`<a class="btn ghost" href="${esc(L.jissenbu)}" target="_blank" rel="noopener">🔥 心をつかむ実践部を見る</a>`);
+$("cta-btns").innerHTML = btns.join("");
+if (!btns.length) $("cta").style.display = "none";
+
+$("foot").textContent = `${DATA.updated} 更新｜応援AI共創クエスト ─ 最初の一大クエスト『心のつかみ方』`;
+</script>
+</body>
+</html>
